@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -94,61 +94,61 @@
 <a name='L29'></a><a href='#L29'>29</a>
 <a name='L30'></a><a href='#L30'>30</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import type { ProductsResponse } from '../types/product';
 &nbsp;
-const BASE_URL = <span class="cstat-no" title="statement not covered" >'https://dummyjson.com/products';</span>
-const LIMIT = <span class="cstat-no" title="statement not covered" >10;</span>
-function <span class="fstat-no" title="function not covered" >delay(m</span>illiseconds: number): Promise&lt;void&gt; {
-<span class="cstat-no" title="statement not covered" >  return new <span class="fstat-no" title="function not covered" >Promise((r</span>esolve) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    window.setTimeout(resolve, milliseconds);</span>
+const BASE_URL = 'https://dummyjson.com/products';
+const LIMIT = 10;
+function delay(milliseconds: number): Promise&lt;void&gt; {
+  return new Promise((resolve) =&gt; {
+    window.setTimeout(resolve, milliseconds);
   });
 }
 &nbsp;
-export async function <span class="fstat-no" title="function not covered" >fetchProducts(</span>
+export async function fetchProducts(
   searchTerm: string
 ): Promise&lt;ProductsResponse&gt; {
-<span class="cstat-no" title="statement not covered" >  await delay(300);</span>
+  await delay(300);
 &nbsp;
-  const trimmedTerm = <span class="cstat-no" title="statement not covered" >searchTerm.trim();</span>
+  const trimmedTerm = searchTerm.trim();
 &nbsp;
-  const url = <span class="cstat-no" title="statement not covered" >trimmedTerm</span>
+  const url = trimmedTerm
     ? `${BASE_URL}/search?q=${encodeURIComponent(trimmedTerm)}&amp;limit=${LIMIT}&amp;skip=0`
     : `${BASE_URL}?limit=${LIMIT}&amp;skip=0`;
 &nbsp;
-  const response = <span class="cstat-no" title="statement not covered" >await fetch(url);</span>
+  const response = await fetch(url);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  if (!response.ok) {</span>
-<span class="cstat-no" title="statement not covered" >    throw new Error(`Request failed. Status: ${response.status}`);</span>
+  if (!response.ok) {
+    throw new Error(`Request failed. Status: ${response.status}`);
   }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return response.json() as Promise&lt;ProductsResponse&gt;;</span>
+  return response.json() as Promise&lt;ProductsResponse&gt;;
 }
 &nbsp;</pre></td></tr></table></pre>
 
@@ -157,7 +157,7 @@ export async function <span class="fstat-no" title="function not covered" >fetch
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-05-11T14:23:37.990Z
+                at 2026-05-11T14:28:55.874Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
