@@ -1,19 +1,23 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import App from "../App";
 import { fetchProducts } from "../api/productsApi";
-const mockProductsResponse = {
+import type { ProductsResponse } from "../types/product";
+
+vi.mock("../api/productsApi", () => ({
+  fetchProducts: vi.fn(),
+}));
+
+const mockedFetchProducts = vi.mocked(fetchProducts);
+
+const mockProductsResponse: ProductsResponse = {
   products: [
     {
       id: 1,
-      title: "iPhone",
-      description: "Apple phone",
-      price: 999,
-      discountPercentage: 10,
-      rating: 4.5,
-      stock: 20,
-      brand: "Apple",
-      category: "smartphones",
-      thumbnail: "iphone.jpg",
-      images: ["iphone.jpg"],
+      title: "iPhone 15",
+      description: "Apple smartphone",
     },
   ],
   total: 1,
@@ -21,121 +25,124 @@ const mockProductsResponse = {
   limit: 10,
 };
 
-describe("fetchProducts", () => {
-  const fetchMock = vi.fn<typeof fetch>();
-
+describe("App", () => {
   beforeEach(() => {
-    vi.useFakeTimers();
-    vi.stubGlobal("fetch", fetchMock);
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-    vi.unstubAllGlobals();
+    localStorage.clear();
     vi.clearAllMocks();
   });
 
-  it("fetches products with default URL when search term is empty", async () => {
-    fetchMock.mockResolvedValueOnce(
-      new Response(JSON.stringify(mockProductsResponse), {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }),
-    );
+  it("renders the app and loads products on mount", async () => {
+    mockedFetchProducts.mockResolvedValueOnce(mockProductsResponse);
 
-    const resultPromise = fetchProducts("");
+    render(<App />);
 
-    await vi.advanceTimersByTimeAsync(300);
+    expect(
+      screen.getByRole("heading", { name: /product search app/i }),
+    ).toBeInTheDocument();
 
-    const result = await resultPromise;
+    expect(screen.getByRole("textbox")).toBeInTheDocument();
 
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(fetchMock).toHaveBeenCalledWith(
-      "https://dummyjson.com/products?limit=10&skip=0",
-    );
-    expect(result).toEqual(mockProductsResponse);
+    await waitFor(() => {
+      expect(mockedFetchProducts).toHaveBeenCalledWith("");
+    });
+
+    expect(await screen.findByText("iPhone 15")).toBeInTheDocument();
+    expect(screen.getByText("Apple smartphone")).toBeInTheDocument();
   });
 
-  it("fetches products with default URL when search term contains only spaces", async () => {
-    fetchMock.mockResolvedValueOnce(
-      new Response(JSON.stringify(mockProductsResponse), {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }),
-    );
+  it("uses saved search term from localStorage on mount", async () => {
+    localStorage.setItem("searchTerm", "phone");
 
-    const resultPromise = fetchProducts("   ");
+    mockedFetchProducts.mockResolvedValueOnce(mockProductsResponse);
 
-    await vi.advanceTimersByTimeAsync(300);
+    render(<App />);
 
-    const result = await resultPromise;
+    expect(screen.getByRole("textbox")).toHaveValue("phone");
 
-    expect(fetchMock).toHaveBeenCalledWith(
-      "https://dummyjson.com/products?limit=10&skip=0",
-    );
-    expect(result).toEqual(mockProductsResponse);
+    await waitFor(() => {
+      expect(mockedFetchProducts).toHaveBeenCalledWith("phone");
+    });
   });
 
-  it("trims and encodes search term before calling API", async () => {
-    fetchMock.mockResolvedValueOnce(
-      new Response(JSON.stringify(mockProductsResponse), {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }),
-    );
+  it("shows an error message when loading products fails", async () => {
+    mockedFetchProducts.mockRejectedValueOnce(new Error("Network error"));
 
-    const resultPromise = fetchProducts("  samsung phone  ");
+    render(<App />);
 
-    await vi.advanceTimersByTimeAsync(300);
-
-    const result = await resultPromise;
-
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(fetchMock).toHaveBeenCalledWith(
-      "https://dummyjson.com/products/search?q=samsung%20phone&limit=10&skip=0",
-    );
-    expect(result).toEqual(mockProductsResponse);
+    expect(
+      await screen.findByText(
+        /unable to load products. please check your connection or try again later/i,
+      ),
+    ).toBeInTheDocument();
   });
+  it("saves trimmed search term and loads products when user clicks search", async () => {
+    const user = userEvent.setup();
 
-  it("encodes special characters in search term", async () => {
-    fetchMock.mockResolvedValueOnce(
-      new Response(JSON.stringify(mockProductsResponse), {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
+    mockedFetchProducts.mockResolvedValueOnce({
+      products: [],
+      total: 0,
+      skip: 0,
+      limit: 10,
+    });
+
+    mockedFetchProducts.mockResolvedValueOnce({
+      products: [
+        {
+          id: 2,
+          title: "MacBook Pro",
+          description: "Apple laptop",
         },
-      }),
-    );
+      ],
+      total: 1,
+      skip: 0,
+      limit: 10,
+    });
 
-    const resultPromise = fetchProducts("phone & tablet");
+    render(<App />);
 
-    await vi.advanceTimersByTimeAsync(300);
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /^search$/i }),
+      ).not.toBeDisabled();
+    });
 
-    await resultPromise;
+    const input = screen.getByRole("textbox");
+    const button = screen.getByRole("button", { name: /^search$/i });
 
-    expect(fetchMock).toHaveBeenCalledWith(
-      "https://dummyjson.com/products/search?q=phone%20%26%20tablet&limit=10&skip=0",
-    );
+    await user.type(input, "  macbook  ");
+    await user.click(button);
+
+    await waitFor(() => {
+      expect(mockedFetchProducts).toHaveBeenCalledWith("macbook");
+    });
+
+    expect(localStorage.getItem("searchTerm")).toBe("macbook");
+    expect(screen.getByRole("textbox")).toHaveValue("macbook");
+    expect(await screen.findByText("MacBook Pro")).toBeInTheDocument();
   });
+  it("does not search again when search term is the same as last searched term", async () => {
+    const user = userEvent.setup();
 
-  it("throws an error when API response is not ok", async () => {
-    fetchMock.mockResolvedValueOnce(
-      new Response(null, {
-        status: 500,
-        statusText: "Internal Server Error",
-      }),
-    );
+    localStorage.setItem("searchTerm", "phone");
 
-    const resultPromise = fetchProducts("phone");
+    mockedFetchProducts.mockResolvedValueOnce(mockProductsResponse);
 
-    await vi.advanceTimersByTimeAsync(300);
+    render(<App />);
 
-    await expect(resultPromise).rejects.toThrow("Request failed. Status: 500");
+    await waitFor(() => {
+      expect(mockedFetchProducts).toHaveBeenCalledTimes(1);
+      expect(mockedFetchProducts).toHaveBeenCalledWith("phone");
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: /^search$/i }),
+      ).not.toBeDisabled();
+    });
+
+    await user.click(screen.getByRole("button", { name: /^search$/i }));
+
+    expect(mockedFetchProducts).toHaveBeenCalledTimes(1);
+    expect(localStorage.getItem("searchTerm")).toBe("phone");
   });
 });
