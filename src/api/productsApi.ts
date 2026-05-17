@@ -1,7 +1,9 @@
-import type { ProductsResponse } from '../types/product';
+import type { ProductsResponse } from "../types/product";
 
-const BASE_URL = 'https://dummyjson.com/products';
-const LIMIT = 10;
+const BASE_URL = "https://dummyjson.com/products";
+
+export const LIMIT = 10;
+
 function delay(milliseconds: number): Promise<void> {
   return new Promise((resolve) => {
     window.setTimeout(resolve, milliseconds);
@@ -9,15 +11,17 @@ function delay(milliseconds: number): Promise<void> {
 }
 
 export async function fetchProducts(
-  searchTerm: string
+  searchTerm: string,
+  page = 1,
 ): Promise<ProductsResponse> {
   await delay(300);
 
   const trimmedTerm = searchTerm.trim();
+  const skip = (page - 1) * LIMIT;
 
   const url = trimmedTerm
-    ? `${BASE_URL}/search?q=${encodeURIComponent(trimmedTerm)}&limit=${LIMIT}&skip=0`
-    : `${BASE_URL}?limit=${LIMIT}&skip=0`;
+    ? `${BASE_URL}/search?q=${encodeURIComponent(trimmedTerm)}&limit=${LIMIT}&skip=${skip}`
+    : `${BASE_URL}?limit=${LIMIT}&skip=${skip}`;
 
   const response = await fetch(url);
 
