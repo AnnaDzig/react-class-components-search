@@ -8,8 +8,8 @@ function AboutPage() {
 
         <p className="mt-4 text-slate-600">
           This product search application was created as part of the RS School
-          React course. It demonstrates React Router, functional components,
-          hooks, pagination, and master-detail navigation.
+          React course. It demonstrates React, TypeScript, functional
+          components, hooks, routing, and API data loading.
         </p>
 
         <p className="mt-4 text-slate-600">Author: Anna Dzhyhota</p>
@@ -25,7 +25,7 @@ function AboutPage() {
         <div className="mt-6">
           <Link
             className="rounded-lg bg-slate-900 px-5 py-2 font-medium text-white"
-            to="/?page=1">
+            to="/">
             Back to app
           </Link>
         </div>
