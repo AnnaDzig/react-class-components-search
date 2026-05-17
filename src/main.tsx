@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
+import App from "./App.tsx";
 import ErrorBoundary from "./components/ErrorBoundary.tsx";
 import AboutPage from "./pages/AboutPage.tsx";
 import HomePage from "./pages/HomePage.tsx";
@@ -13,7 +14,10 @@ createRoot(document.getElementById("root")!).render(
     <ErrorBoundary>
       <BrowserRouter basename="/react-class-components-search">
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<App />}>
+            <Route index element={<HomePage />} />
+          </Route>
+
           <Route path="/about" element={<AboutPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
