@@ -25,7 +25,7 @@ function AboutPage() {
         <div className="mt-6">
           <Link
             className="rounded-lg bg-slate-900 px-5 py-2 font-medium text-white"
-            to="/">
+            to="/?page=1">
             Back to app
           </Link>
         </div>

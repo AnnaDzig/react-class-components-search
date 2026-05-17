@@ -12,7 +12,7 @@ import "./index.css";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary>
-      <BrowserRouter basename="/react-class-components-search">
+      <BrowserRouter basename="/react-class-components-search/">
         <Routes>
           <Route path="/" element={<App />}>
             <Route index element={<HomePage />} />

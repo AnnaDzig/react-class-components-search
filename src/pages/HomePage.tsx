@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet, useNavigate, useSearchParams } from "react-router-dom";
 
 import { fetchProducts, LIMIT } from "../api/productsApi";
@@ -38,9 +38,6 @@ function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const initialSearchTerm = useRef(lastSearchedTerm);
-  const initialPage = useRef(currentPage);
-
   const totalPages = Math.ceil(totalProducts / LIMIT);
 
   useEffect(() => {
@@ -51,16 +48,14 @@ function HomePage() {
 
     let shouldIgnoreResult = false;
 
-    const loadInitialProducts = async (): Promise<void> => {
+    const loadProductsForPage = async (): Promise<void> => {
       try {
-        const data = await fetchProducts(
-          initialSearchTerm.current,
-          initialPage.current,
-        );
+        const data = await fetchProducts(lastSearchedTerm, currentPage);
 
         if (!shouldIgnoreResult) {
           setProducts(data.products);
           setTotalProducts(data.total);
+          setError("");
         }
       } catch {
         if (!shouldIgnoreResult) {
@@ -77,35 +72,12 @@ function HomePage() {
       }
     };
 
-    void loadInitialProducts();
+    void loadProductsForPage();
 
     return () => {
       shouldIgnoreResult = true;
     };
-  }, [searchParams, setSearchParams]);
-
-  const loadProducts = async (
-    currentSearchTerm: string,
-    page: number,
-  ): Promise<void> => {
-    setIsLoading(true);
-    setError("");
-
-    try {
-      const data = await fetchProducts(currentSearchTerm, page);
-
-      setProducts(data.products);
-      setTotalProducts(data.total);
-    } catch {
-      setProducts([]);
-      setTotalProducts(0);
-      setError(
-        "Unable to load products. Please check your connection or try again later.",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [currentPage, lastSearchedTerm, searchParams, setSearchParams]);
 
   const handleSearchChange = (value: string): void => {
     setSearchTerm(value);
@@ -118,18 +90,19 @@ function HomePage() {
       return;
     }
 
+    setIsLoading(true);
     setSavedSearchTerm(trimmedSearchTerm);
     setSearchTerm(trimmedSearchTerm);
     setLastSearchedTerm(trimmedSearchTerm);
 
     navigate("/?page=1");
-    void loadProducts(trimmedSearchTerm, 1);
   };
 
   const handlePageChange = (page: number): void => {
+    setIsLoading(true);
     navigate(`/?page=${page}`);
-    void loadProducts(lastSearchedTerm, page);
   };
+
   const handleProductClick = (productId: number): void => {
     navigate(`/products/${productId}?page=${currentPage}`);
   };

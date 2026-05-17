@@ -16,7 +16,7 @@ function NotFoundPage() {
 
         <Link
           className="mt-6 inline-block rounded-lg bg-slate-900 px-5 py-2 font-medium text-white"
-          to="/">
+          to="/?page=1">
           Return to main app
         </Link>
       </div>
