@@ -1,7 +1,5 @@
-import { Component } from 'react';
 
-class Header extends Component {
-  render() {
+function Header () {
     return (
       <header className="mb-8 text-center">
         <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-500">
@@ -19,6 +17,5 @@ class Header extends Component {
       </header>
     );
   }
-}
 
 export default Header;
