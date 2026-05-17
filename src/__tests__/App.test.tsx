@@ -1,18 +1,21 @@
 import userEvent from "@testing-library/user-event";
 import { render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { fetchProducts } from "../api/productsApi";
+import { fetchProductById, fetchProducts } from "../api/productsApi";
 import HomePage from "../pages/HomePage";
-import type { ProductsResponse } from "../types/product";
+import ProductDetails from "../pages/ProductDetails";
+import type { Product, ProductsResponse } from "../types/product";
 
 vi.mock("../api/productsApi", () => ({
   LIMIT: 10,
   fetchProducts: vi.fn(),
+  fetchProductById: vi.fn(),
 }));
 
 const mockedFetchProducts = vi.mocked(fetchProducts);
+const mockedFetchProductById = vi.mocked(fetchProductById);
 
 const mockProductsResponse: ProductsResponse = {
   products: [
@@ -27,10 +30,29 @@ const mockProductsResponse: ProductsResponse = {
   limit: 10,
 };
 
-function renderHomePage() {
+const emptyProductsResponse: ProductsResponse = {
+  products: [],
+  total: 0,
+  skip: 0,
+  limit: 10,
+};
+
+const mockProductDetails: Product = {
+  id: 1,
+  title: "iPhone 15",
+  description: "Apple smartphone details",
+};
+
+function renderHomePage(initialRoute = "/?page=1") {
   return render(
-    <MemoryRouter initialEntries={["/?page=1"]}>
-      <HomePage />
+    <MemoryRouter initialEntries={[initialRoute]}>
+      <Routes>
+        <Route index element={<HomePage />} />
+
+        <Route path="products/:productId" element={<HomePage />}>
+          <Route index element={<ProductDetails />} />
+        </Route>
+      </Routes>
     </MemoryRouter>,
   );
 }
@@ -85,12 +107,7 @@ describe("HomePage", () => {
   it("saves trimmed search term and loads products when user clicks search", async () => {
     const user = userEvent.setup();
 
-    mockedFetchProducts.mockResolvedValueOnce({
-      products: [],
-      total: 0,
-      skip: 0,
-      limit: 10,
-    });
+    mockedFetchProducts.mockResolvedValueOnce(emptyProductsResponse);
 
     mockedFetchProducts.mockResolvedValueOnce({
       products: [
@@ -153,5 +170,73 @@ describe("HomePage", () => {
 
     expect(mockedFetchProducts).toHaveBeenCalledTimes(1);
     expect(localStorage.getItem("searchTerm")).toBe("phone");
+  });
+
+  it("loads products for the page from the URL", async () => {
+    mockedFetchProducts.mockResolvedValueOnce({
+      products: [
+        {
+          id: 11,
+          title: "Product from page 2",
+          description: "Second page product",
+        },
+      ],
+      total: 30,
+      skip: 10,
+      limit: 10,
+    });
+
+    renderHomePage("/?page=2");
+
+    await waitFor(() => {
+      expect(mockedFetchProducts).toHaveBeenCalledWith("", 2);
+    });
+
+    expect(await screen.findByText("Product from page 2")).toBeInTheDocument();
+  });
+
+  it("opens product details when product details route is visited", async () => {
+    mockedFetchProducts.mockResolvedValueOnce(mockProductsResponse);
+    mockedFetchProductById.mockResolvedValueOnce(mockProductDetails);
+
+    renderHomePage("/products/1?page=1");
+
+    expect(await screen.findByText("Apple smartphone")).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(mockedFetchProductById).toHaveBeenCalledWith("1");
+    });
+
+    expect(
+      await screen.findByRole("heading", { name: /product details/i }),
+    ).toBeInTheDocument();
+
+    expect(screen.getByText("Apple smartphone details")).toBeInTheDocument();
+    expect(screen.getAllByText("iPhone 15")).toHaveLength(2);
+  });
+
+  it("closes product details when close button is clicked", async () => {
+    const user = userEvent.setup();
+
+    mockedFetchProducts.mockResolvedValueOnce(mockProductsResponse);
+    mockedFetchProducts.mockResolvedValueOnce(mockProductsResponse);
+    mockedFetchProductById.mockResolvedValueOnce(mockProductDetails);
+
+    renderHomePage("/products/1?page=1");
+
+    expect(
+      await screen.findByRole("heading", { name: /product details/i }),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /close/i }));
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole("heading", { name: /product details/i }),
+      ).not.toBeInTheDocument();
+    });
+
+    expect(await screen.findByText("iPhone 15")).toBeInTheDocument();
+    expect(screen.getByText("Apple smartphone")).toBeInTheDocument();
   });
 });
