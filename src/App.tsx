@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocalStorage } from "./hooks/useLocalStorage";
 
 import { fetchProducts } from "./api/productsApi";
 import ErrorButton from "./components/ErrorButton";
@@ -7,15 +8,16 @@ import Results from "./components/Results";
 import Search from "./components/Search";
 import type { Product } from "./types/product";
 
-function getSavedSearchTerm(): string {
-  return localStorage.getItem("searchTerm") ?? "";
-}
-
 function App() {
   const [products, setProducts] = useState<Product[]>([]);
 
-  const [searchTerm, setSearchTerm] = useState(getSavedSearchTerm);
-  const [lastSearchedTerm, setLastSearchedTerm] = useState(getSavedSearchTerm);
+  const [savedSearchTerm, setSavedSearchTerm] = useLocalStorage(
+    "searchTerm",
+    "",
+  );
+
+  const [searchTerm, setSearchTerm] = useState(savedSearchTerm);
+  const [lastSearchedTerm, setLastSearchedTerm] = useState(savedSearchTerm);
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -82,7 +84,7 @@ function App() {
       return;
     }
 
-    localStorage.setItem("searchTerm", trimmedSearchTerm);
+    setSavedSearchTerm(trimmedSearchTerm);
 
     setSearchTerm(trimmedSearchTerm);
     setLastSearchedTerm(trimmedSearchTerm);
