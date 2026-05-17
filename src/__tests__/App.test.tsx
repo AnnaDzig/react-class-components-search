@@ -1,12 +1,14 @@
 import userEvent from "@testing-library/user-event";
 import { render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import App from "../App";
 import { fetchProducts } from "../api/productsApi";
+import HomePage from "../pages/HomePage";
 import type { ProductsResponse } from "../types/product";
 
 vi.mock("../api/productsApi", () => ({
+  LIMIT: 10,
   fetchProducts: vi.fn(),
 }));
 
@@ -25,25 +27,29 @@ const mockProductsResponse: ProductsResponse = {
   limit: 10,
 };
 
-describe("App", () => {
+function renderHomePage() {
+  return render(
+    <MemoryRouter initialEntries={["/?page=1"]}>
+      <HomePage />
+    </MemoryRouter>,
+  );
+}
+
+describe("HomePage", () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
   });
 
-  it("renders the app and loads products on mount", async () => {
+  it("renders the page and loads products on mount", async () => {
     mockedFetchProducts.mockResolvedValueOnce(mockProductsResponse);
 
-    render(<App />);
-
-    expect(
-      screen.getByRole("heading", { name: /product search app/i }),
-    ).toBeInTheDocument();
+    renderHomePage();
 
     expect(screen.getByRole("textbox")).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(mockedFetchProducts).toHaveBeenCalledWith("");
+      expect(mockedFetchProducts).toHaveBeenCalledWith("", 1);
     });
 
     expect(await screen.findByText("iPhone 15")).toBeInTheDocument();
@@ -55,19 +61,19 @@ describe("App", () => {
 
     mockedFetchProducts.mockResolvedValueOnce(mockProductsResponse);
 
-    render(<App />);
+    renderHomePage();
 
     expect(screen.getByRole("textbox")).toHaveValue("phone");
 
     await waitFor(() => {
-      expect(mockedFetchProducts).toHaveBeenCalledWith("phone");
+      expect(mockedFetchProducts).toHaveBeenCalledWith("phone", 1);
     });
   });
 
   it("shows an error message when loading products fails", async () => {
     mockedFetchProducts.mockRejectedValueOnce(new Error("Network error"));
 
-    render(<App />);
+    renderHomePage();
 
     expect(
       await screen.findByText(
@@ -75,6 +81,7 @@ describe("App", () => {
       ),
     ).toBeInTheDocument();
   });
+
   it("saves trimmed search term and loads products when user clicks search", async () => {
     const user = userEvent.setup();
 
@@ -98,7 +105,7 @@ describe("App", () => {
       limit: 10,
     });
 
-    render(<App />);
+    renderHomePage();
 
     await waitFor(() => {
       expect(
@@ -109,17 +116,19 @@ describe("App", () => {
     const input = screen.getByRole("textbox");
     const button = screen.getByRole("button", { name: /^search$/i });
 
+    await user.clear(input);
     await user.type(input, "  macbook  ");
     await user.click(button);
 
     await waitFor(() => {
-      expect(mockedFetchProducts).toHaveBeenCalledWith("macbook");
+      expect(mockedFetchProducts).toHaveBeenCalledWith("macbook", 1);
     });
 
     expect(localStorage.getItem("searchTerm")).toBe("macbook");
     expect(screen.getByRole("textbox")).toHaveValue("macbook");
     expect(await screen.findByText("MacBook Pro")).toBeInTheDocument();
   });
+
   it("does not search again when search term is the same as last searched term", async () => {
     const user = userEvent.setup();
 
@@ -127,11 +136,11 @@ describe("App", () => {
 
     mockedFetchProducts.mockResolvedValueOnce(mockProductsResponse);
 
-    render(<App />);
+    renderHomePage();
 
     await waitFor(() => {
       expect(mockedFetchProducts).toHaveBeenCalledTimes(1);
-      expect(mockedFetchProducts).toHaveBeenCalledWith("phone");
+      expect(mockedFetchProducts).toHaveBeenCalledWith("phone", 1);
     });
 
     await waitFor(() => {

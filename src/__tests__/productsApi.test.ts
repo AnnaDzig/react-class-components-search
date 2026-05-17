@@ -137,4 +137,44 @@ describe("fetchProducts", () => {
 
     await expectation;
   });
+  it("fetches products with correct skip value for page 2", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        products: [],
+        total: 100,
+        skip: 10,
+        limit: 10,
+      }),
+    } as Response);
+
+    const resultPromise = fetchProducts("", 2);
+
+    await vi.runAllTimersAsync();
+    await resultPromise;
+
+    expect(fetch).toHaveBeenCalledWith(
+      "https://dummyjson.com/products?limit=10&skip=10",
+    );
+  });
+  it("fetches searched products with correct skip value for page 3", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        products: [],
+        total: 100,
+        skip: 20,
+        limit: 10,
+      }),
+    } as Response);
+
+    const resultPromise = fetchProducts("phone", 3);
+
+    await vi.runAllTimersAsync();
+    await resultPromise;
+
+    expect(fetch).toHaveBeenCalledWith(
+      "https://dummyjson.com/products/search?q=phone&limit=10&skip=20",
+    );
+  });
 });
