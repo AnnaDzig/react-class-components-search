@@ -5,9 +5,10 @@ interface ResultsProps {
   products: Product[];
   isLoading: boolean;
   error: string;
+  onProductClick: (productId: number) => void;
 }
 
-function Results({ products, isLoading, error }: ResultsProps) {
+function Results({ products, isLoading, error, onProductClick }: ResultsProps) {
   const renderContent = () => {
     if (isLoading) {
       return (
@@ -45,7 +46,11 @@ function Results({ products, isLoading, error }: ResultsProps) {
 
         <div className="divide-y divide-slate-200">
           {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              onClick={() => onProductClick(product.id)}
+            />
           ))}
         </div>
       </div>

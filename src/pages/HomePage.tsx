@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Outlet, useNavigate, useSearchParams } from "react-router-dom";
 
 import { fetchProducts, LIMIT } from "../api/productsApi";
 import Pagination from "../components/Pagination";
@@ -130,26 +130,42 @@ function HomePage() {
     navigate(`/?page=${page}`);
     void loadProducts(lastSearchedTerm, page);
   };
+  const handleProductClick = (productId: number): void => {
+    navigate(`/products/${productId}?page=${currentPage}`);
+  };
+
+  const handleCloseDetails = (): void => {
+    navigate(`/?page=${currentPage}`);
+  };
 
   return (
-    <>
-      <Search
-        searchTerm={searchTerm}
-        isLoading={isLoading}
-        onChange={handleSearchChange}
-        onSearch={handleSearchSubmit}
-      />
-
-      <Results products={products} isLoading={isLoading} error={error} />
-
-      {!isLoading && products.length > 0 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
+      <div>
+        <Search
+          searchTerm={searchTerm}
+          isLoading={isLoading}
+          onChange={handleSearchChange}
+          onSearch={handleSearchSubmit}
         />
-      )}
-    </>
+
+        <Results
+          products={products}
+          isLoading={isLoading}
+          error={error}
+          onProductClick={handleProductClick}
+        />
+
+        {!isLoading && products.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        )}
+      </div>
+
+      <Outlet context={{ onClose: handleCloseDetails }} />
+    </div>
   );
 }
 

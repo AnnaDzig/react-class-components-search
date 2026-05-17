@@ -1,4 +1,4 @@
-import type { ProductsResponse } from "../types/product";
+import type { Product, ProductsResponse } from "../types/product";
 
 const BASE_URL = "https://dummyjson.com/products";
 
@@ -30,4 +30,15 @@ export async function fetchProducts(
   }
 
   return response.json() as Promise<ProductsResponse>;
+}
+export async function fetchProductById(id: string): Promise<Product> {
+  await delay(300);
+
+  const response = await fetch(`${BASE_URL}/${id}`);
+
+  if (!response.ok) {
+    throw new Error(`Request failed. Status: ${response.status}`);
+  }
+
+  return response.json() as Promise<Product>;
 }

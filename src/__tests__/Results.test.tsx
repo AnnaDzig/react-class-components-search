@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import Results from "../components/Results";
 import type { Product } from "../types/product";
@@ -17,9 +17,30 @@ const products: Product[] = [
   },
 ];
 
+function renderResults({
+  products = [],
+  isLoading = false,
+  error = "",
+  onProductClick = vi.fn(),
+}: {
+  products?: Product[];
+  isLoading?: boolean;
+  error?: string;
+  onProductClick?: (productId: number) => void;
+}) {
+  return render(
+    <Results
+      products={products}
+      isLoading={isLoading}
+      error={error}
+      onProductClick={onProductClick}
+    />,
+  );
+}
+
 describe("Results", () => {
   it("renders the Results heading", () => {
-    render(<Results products={[]} isLoading={false} error="" />);
+    renderResults({});
 
     expect(
       screen.getByRole("heading", { name: /results/i }),
@@ -27,38 +48,34 @@ describe("Results", () => {
   });
 
   it("shows loading state when isLoading is true", () => {
-    render(<Results products={[]} isLoading={true} error="" />);
+    renderResults({ isLoading: true });
 
     expect(screen.getByText(/loading products/i)).toBeInTheDocument();
   });
 
   it("shows error message when error is provided", () => {
-    render(
-      <Results
-        products={[]}
-        isLoading={false}
-        error="Request failed. Status: 500"
-      />,
-    );
+    renderResults({
+      error: "Request failed. Status: 500",
+    });
 
     expect(screen.getByText("Request failed. Status: 500")).toBeInTheDocument();
   });
 
   it("shows no products message when product list is empty", () => {
-    render(<Results products={[]} isLoading={false} error="" />);
+    renderResults({});
 
     expect(screen.getByText(/no products found/i)).toBeInTheDocument();
   });
 
   it("renders table headings when products are provided", () => {
-    render(<Results products={products} isLoading={false} error="" />);
+    renderResults({ products });
 
     expect(screen.getByText(/item name/i)).toBeInTheDocument();
     expect(screen.getByText(/item description/i)).toBeInTheDocument();
   });
 
   it("renders all product titles and descriptions", () => {
-    render(<Results products={products} isLoading={false} error="" />);
+    renderResults({ products });
 
     expect(screen.getByText("iPhone 15")).toBeInTheDocument();
     expect(screen.getByText("Apple smartphone")).toBeInTheDocument();
@@ -67,14 +84,23 @@ describe("Results", () => {
     expect(screen.getByText("Android smartphone")).toBeInTheDocument();
   });
 
+  it("calls onProductClick with product id when product is clicked", () => {
+    const onProductClick = vi.fn();
+
+    renderResults({ products, onProductClick });
+
+    screen.getByRole("button", { name: /iphone 15 apple smartphone/i }).click();
+
+    expect(onProductClick).toHaveBeenCalledWith(1);
+    expect(onProductClick).toHaveBeenCalledTimes(1);
+  });
+
   it("prioritizes loading state over error and products", () => {
-    render(
-      <Results
-        products={products}
-        isLoading={true}
-        error="Something went wrong"
-      />,
-    );
+    renderResults({
+      products,
+      isLoading: true,
+      error: "Something went wrong",
+    });
 
     expect(screen.getByText(/loading products/i)).toBeInTheDocument();
     expect(screen.queryByText("Something went wrong")).not.toBeInTheDocument();
@@ -82,9 +108,9 @@ describe("Results", () => {
   });
 
   it("prioritizes error state over empty products message", () => {
-    render(
-      <Results products={[]} isLoading={false} error="Something went wrong" />,
-    );
+    renderResults({
+      error: "Something went wrong",
+    });
 
     expect(screen.getByText("Something went wrong")).toBeInTheDocument();
     expect(screen.queryByText(/no products found/i)).not.toBeInTheDocument();
