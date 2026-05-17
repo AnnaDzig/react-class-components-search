@@ -1,7 +1,5 @@
-import { Component } from 'react';
-
-import type { Product } from '../types/product';
-import ProductCard from './ProductCard';
+import type { Product } from "../types/product";
+import ProductCard from "./ProductCard";
 
 interface ResultsProps {
   products: Product[];
@@ -9,10 +7,8 @@ interface ResultsProps {
   error: string;
 }
 
-class Results extends Component<ResultsProps> {
-  renderContent() {
-    const { products, isLoading, error } = this.props;
-
+function Results({ products, isLoading, error }: ResultsProps) {
+  const renderContent = () => {
     if (isLoading) {
       return (
         <div className="flex min-h-40 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50">
@@ -54,16 +50,14 @@ class Results extends Component<ResultsProps> {
         </div>
       </div>
     );
-  }
+  };
 
-  render() {
-    return (
-      <section className="rounded-2xl bg-white p-6 shadow">
-        <h2 className="mb-5 text-2xl font-semibold">Results</h2>
-        {this.renderContent()}
-      </section>
-    );
-  }
+  return (
+    <section className="rounded-2xl bg-white p-6 shadow">
+      <h2 className="mb-5 text-2xl font-semibold">Results</h2>
+      {renderContent()}
+    </section>
+  );
 }
 
 export default Results;
