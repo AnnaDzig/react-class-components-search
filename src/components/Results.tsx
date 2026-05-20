@@ -1,18 +1,15 @@
-import { Component } from 'react';
-
-import type { Product } from '../types/product';
-import ProductCard from './ProductCard';
+import type { Product } from "../types/product";
+import ProductCard from "./ProductCard";
 
 interface ResultsProps {
   products: Product[];
   isLoading: boolean;
   error: string;
+  onProductClick: (productId: number) => void;
 }
 
-class Results extends Component<ResultsProps> {
-  renderContent() {
-    const { products, isLoading, error } = this.props;
-
+function Results({ products, isLoading, error, onProductClick }: ResultsProps) {
+  const renderContent = () => {
     if (isLoading) {
       return (
         <div className="flex min-h-40 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50">
@@ -49,21 +46,23 @@ class Results extends Component<ResultsProps> {
 
         <div className="divide-y divide-slate-200">
           {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              onClick={() => onProductClick(product.id)}
+            />
           ))}
         </div>
       </div>
     );
-  }
+  };
 
-  render() {
-    return (
-      <section className="rounded-2xl bg-white p-6 shadow">
-        <h2 className="mb-5 text-2xl font-semibold">Results</h2>
-        {this.renderContent()}
-      </section>
-    );
-  }
+  return (
+    <section className="rounded-2xl bg-white p-6 shadow">
+      <h2 className="mb-5 text-2xl font-semibold">Results</h2>
+      {renderContent()}
+    </section>
+  );
 }
 
 export default Results;
