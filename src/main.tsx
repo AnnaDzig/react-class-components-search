@@ -8,6 +8,7 @@ import AboutPage from "./pages/AboutPage.tsx";
 import HomePage from "./pages/HomePage.tsx";
 import NotFoundPage from "./pages/NotFoundPage.tsx";
 import "./index.css";
+import ProductDetails from "./pages/ProductDetails.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -16,6 +17,10 @@ createRoot(document.getElementById("root")!).render(
         <Routes>
           <Route path="/" element={<App />}>
             <Route index element={<HomePage />} />
+
+            <Route path="products/:productId" element={<HomePage />}>
+              <Route index element={<ProductDetails />} />
+            </Route>
           </Route>
 
           <Route path="/about" element={<AboutPage />} />

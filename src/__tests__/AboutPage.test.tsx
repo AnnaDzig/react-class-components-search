@@ -46,7 +46,7 @@ describe("AboutPage", () => {
 
     expect(screen.getByRole("link", { name: /back to app/i })).toHaveAttribute(
       "href",
-      "/",
+      "/?page=1",
     );
   });
 });

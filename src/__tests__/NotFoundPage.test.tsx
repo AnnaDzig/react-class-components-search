@@ -32,6 +32,6 @@ describe("NotFoundPage", () => {
 
     expect(
       screen.getByRole("link", { name: /return to main app/i }),
-    ).toHaveAttribute("href", "/");
+    ).toHaveAttribute("href", "/?page=1");
   });
 });
