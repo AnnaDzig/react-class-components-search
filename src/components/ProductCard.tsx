@@ -35,13 +35,13 @@ function ProductCard({ product, onClick }: ProductCardProps) {
         <input
           aria-label={`Select ${product.title}`}
           checked={isSelected}
-          className="mt-1 h-4 w-4 cursor-pointer accent-slate-900"
+          className="mt-1 h-4 w-4 cursor-pointer accent-slate-900 dark:accent-slate-100"
           type="checkbox"
           onChange={handleCheckboxChange}
         />
       </div>
 
-      <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-lg bg-slate-100">
+      <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-800">
         <img
           alt={product.title}
           className="h-full w-full object-contain p-2"
@@ -52,34 +52,34 @@ function ProductCard({ product, onClick }: ProductCardProps) {
       <div className="min-w-0">
         <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
               {product.category}
             </p>
 
-            <h3 className="line-clamp-1 font-semibold text-slate-900">
+            <h3 className="line-clamp-1 font-semibold text-slate-900 dark:text-slate-100">
               {product.title}
             </h3>
           </div>
 
-          <p className="rounded-full bg-slate-900 px-3 py-1 text-sm font-semibold text-white">
+          <p className="rounded-full bg-slate-900 px-3 py-1 text-sm font-semibold text-white dark:bg-slate-100 dark:text-slate-900">
             ${product.price}
           </p>
         </div>
 
-        <p className="line-clamp-2 leading-6 text-slate-600">
+        <p className="line-clamp-2 leading-6 text-slate-600 dark:text-slate-300">
           {product.description}
         </p>
 
-        <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-600">
-          <span className="rounded-full bg-slate-100 px-2 py-1">
+        <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-600 dark:text-slate-300">
+          <span className="rounded-full bg-slate-100 px-2 py-1 dark:bg-slate-800">
             Rating: {product.rating}
           </span>
 
-          <span className="rounded-full bg-slate-100 px-2 py-1">
+          <span className="rounded-full bg-slate-100 px-2 py-1 dark:bg-slate-800">
             Stock: {product.stock}
           </span>
 
-          <span className="rounded-full bg-slate-100 px-2 py-1">
+          <span className="rounded-full bg-slate-100 px-2 py-1 dark:bg-slate-800">
             {product.availabilityStatus}
           </span>
         </div>

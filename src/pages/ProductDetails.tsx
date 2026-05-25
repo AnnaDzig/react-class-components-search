@@ -63,7 +63,7 @@ function ProductDetails() {
   const { product, isLoading, error } = detailsState;
 
   return (
-    <aside className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <aside className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-medium uppercase tracking-wide text-slate-500">
@@ -81,7 +81,6 @@ function ProductDetails() {
           Close
         </button>
       </div>
-
       {isLoading && (
         <div className="flex min-h-40 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50">
           <div className="flex items-center gap-3">
@@ -90,13 +89,11 @@ function ProductDetails() {
           </div>
         </div>
       )}
-
       {error && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
           {error}
         </div>
       )}
-
       {!isLoading && product && (
         <div className="space-y-6">
           <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
