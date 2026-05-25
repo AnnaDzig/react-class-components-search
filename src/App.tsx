@@ -2,6 +2,7 @@ import { Link, Outlet } from "react-router-dom";
 
 import ErrorButton from "./components/ErrorButton";
 import Header from "./components/Header";
+import SelectedItemsFlyout from "./components/SelectedItemsFlyout";
 
 function App() {
   return (
@@ -18,7 +19,7 @@ function App() {
         </nav>
 
         <Outlet />
-
+        <SelectedItemsFlyout />
         <div className="mt-6 flex justify-end">
           <ErrorButton />
         </div>
