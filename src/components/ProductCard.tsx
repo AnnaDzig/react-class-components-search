@@ -21,7 +21,7 @@ function ProductCard({ product, onClick }: ProductCardProps) {
 
   return (
     <article
-      className="grid w-full cursor-pointer grid-cols-[auto_96px_1fr] gap-4 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
+      className="grid w-full cursor-pointer grid-cols-[auto_96px_1fr] gap-4 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-500"
       role="button"
       tabIndex={0}
       onClick={onClick}
