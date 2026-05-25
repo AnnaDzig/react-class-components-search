@@ -1,4 +1,5 @@
 import { useSelectedItemsStore } from "../store/selectedItemsStore";
+import { downloadProductsCsv } from "../utils/csv";
 
 function SelectedItemsFlyout() {
   const selectedItems = useSelectedItemsStore((state) => state.selectedItems);
@@ -27,7 +28,8 @@ function SelectedItemsFlyout() {
 
           <button
             className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
-            type="button">
+            type="button"
+            onClick={() => downloadProductsCsv(selectedItems)}>
             Download
           </button>
         </div>
