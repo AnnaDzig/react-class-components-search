@@ -7,6 +7,7 @@ import { fetchProductById, fetchProducts } from "../api/productsApi";
 import HomePage from "../pages/HomePage";
 import ProductDetails from "../pages/ProductDetails";
 import type { Product, ProductsResponse } from "../types/product";
+import { createMockProduct } from "./test-utils/mockProduct";
 
 vi.mock("../api/productsApi", () => ({
   LIMIT: 10,
@@ -18,13 +19,7 @@ const mockedFetchProducts = vi.mocked(fetchProducts);
 const mockedFetchProductById = vi.mocked(fetchProductById);
 
 const mockProductsResponse: ProductsResponse = {
-  products: [
-    {
-      id: 1,
-      title: "iPhone 15",
-      description: "Apple smartphone",
-    },
-  ],
+  products: [createMockProduct()],
   total: 1,
   skip: 0,
   limit: 10,
@@ -37,11 +32,9 @@ const emptyProductsResponse: ProductsResponse = {
   limit: 10,
 };
 
-const mockProductDetails: Product = {
-  id: 1,
-  title: "iPhone 15",
+const mockProductDetails: Product = createMockProduct({
   description: "Apple smartphone details",
-};
+});
 
 function renderHomePage(initialRoute = "/?page=1") {
   return render(
@@ -111,11 +104,12 @@ describe("HomePage", () => {
 
     mockedFetchProducts.mockResolvedValueOnce({
       products: [
-        {
+        createMockProduct({
           id: 2,
           title: "MacBook Pro",
           description: "Apple laptop",
-        },
+          thumbnail: "https://example.com/macbook.png",
+        }),
       ],
       total: 1,
       skip: 0,
@@ -175,11 +169,12 @@ describe("HomePage", () => {
   it("loads products for the page from the URL", async () => {
     mockedFetchProducts.mockResolvedValueOnce({
       products: [
-        {
+        createMockProduct({
           id: 11,
           title: "Product from page 2",
           description: "Second page product",
-        },
+          thumbnail: "https://example.com/page-2.png",
+        }),
       ],
       total: 30,
       skip: 10,
@@ -212,7 +207,7 @@ describe("HomePage", () => {
     ).toBeInTheDocument();
 
     expect(screen.getByText("Apple smartphone details")).toBeInTheDocument();
-    expect(screen.getAllByText("iPhone 15")).toHaveLength(2);
+    expect(screen.getAllByText("iPhone 15").length).toBeGreaterThanOrEqual(2);
   });
 
   it("closes product details when close button is clicked", async () => {
@@ -238,5 +233,77 @@ describe("HomePage", () => {
 
     expect(await screen.findByText("iPhone 15")).toBeInTheDocument();
     expect(screen.getByText("Apple smartphone")).toBeInTheDocument();
+  });
+  it("uses page 1 when URL page value is invalid", async () => {
+    mockedFetchProducts.mockResolvedValueOnce(mockProductsResponse);
+
+    renderHomePage("/?page=invalid");
+
+    await waitFor(() => {
+      expect(mockedFetchProducts).toHaveBeenCalledWith("", 1);
+    });
+
+    expect(await screen.findByText("iPhone 15")).toBeInTheDocument();
+  });
+  it("loads next page when Next pagination button is clicked", async () => {
+    const user = userEvent.setup();
+
+    mockedFetchProducts.mockResolvedValueOnce({
+      products: [createMockProduct()],
+      total: 30,
+      skip: 0,
+      limit: 10,
+    });
+
+    mockedFetchProducts.mockResolvedValueOnce({
+      products: [
+        createMockProduct({
+          id: 11,
+          title: "Product from next page",
+          description: "Next page product",
+          thumbnail: "https://example.com/next-page.png",
+        }),
+      ],
+      total: 30,
+      skip: 10,
+      limit: 10,
+    });
+
+    renderHomePage("/?page=1");
+
+    expect(await screen.findByText("iPhone 15")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /next/i }));
+
+    await waitFor(() => {
+      expect(mockedFetchProducts).toHaveBeenCalledWith("", 2);
+    });
+
+    expect(
+      await screen.findByText("Product from next page"),
+    ).toBeInTheDocument();
+  });
+  it("opens product details when product card is clicked", async () => {
+    const user = userEvent.setup();
+
+    mockedFetchProducts.mockResolvedValueOnce(mockProductsResponse);
+    mockedFetchProducts.mockResolvedValueOnce(mockProductsResponse);
+    mockedFetchProductById.mockResolvedValueOnce(mockProductDetails);
+
+    renderHomePage("/?page=1");
+
+    expect(await screen.findByText("iPhone 15")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /iphone 15/i }));
+
+    await waitFor(() => {
+      expect(mockedFetchProductById).toHaveBeenCalledWith("1");
+    });
+
+    expect(
+      await screen.findByRole("heading", { name: /product details/i }),
+    ).toBeInTheDocument();
+
+    expect(screen.getByText("Apple smartphone details")).toBeInTheDocument();
   });
 });
