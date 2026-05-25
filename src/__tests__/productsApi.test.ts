@@ -1,15 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { fetchProducts } from "../api/productsApi";
+import { fetchProductById, fetchProducts } from "../api/productsApi";
 import type { ProductsResponse } from "../types/product";
+import { createMockProduct } from "./test-utils/mockProduct";
 
 const mockProductsResponse: ProductsResponse = {
   products: [
-    {
+    createMockProduct({
       id: 1,
       title: "iPhone",
       description: "Apple phone",
-    },
+    }),
   ],
   total: 1,
   skip: 0,
@@ -176,5 +177,46 @@ describe("fetchProducts", () => {
     expect(fetch).toHaveBeenCalledWith(
       "https://dummyjson.com/products/search?q=phone&limit=10&skip=20",
     );
+  });
+  it("fetches product by id", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          id: 1,
+          title: "iPhone",
+          description: "Apple phone",
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+
+    const resultPromise = fetchProductById("1");
+
+    await vi.advanceTimersByTimeAsync(300);
+
+    const result = await resultPromise;
+
+    expect(fetchMock).toHaveBeenCalledWith("https://dummyjson.com/products/1");
+    expect(result).toEqual({
+      id: 1,
+      title: "iPhone",
+      description: "Apple phone",
+    });
+  });
+
+  it("throws error when fetching product by id fails", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(null, {
+        status: 404,
+        statusText: "Not Found",
+      }),
+    );
+
+    const resultPromise = fetchProductById("999");
+    resultPromise.catch(() => {});
+
+    await vi.advanceTimersByTimeAsync(300);
+
+    await expect(resultPromise).rejects.toThrow("Request failed. Status: 404");
   });
 });

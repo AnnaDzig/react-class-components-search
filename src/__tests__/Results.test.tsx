@@ -1,20 +1,24 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import Results from "../components/Results";
+import { useSelectedItemsStore } from "../store/selectedItemsStore";
 import type { Product } from "../types/product";
+import { createMockProduct } from "./test-utils/mockProduct";
 
-const products: Product[] = [
-  {
+const products = [
+  createMockProduct({
     id: 1,
     title: "iPhone 15",
     description: "Apple smartphone",
-  },
-  {
+  }),
+  createMockProduct({
     id: 2,
     title: "Samsung Galaxy",
     description: "Android smartphone",
-  },
+    thumbnail: "https://example.com/samsung.png",
+  }),
 ];
 
 function renderResults({
@@ -39,6 +43,12 @@ function renderResults({
 }
 
 describe("Results", () => {
+  beforeEach(() => {
+    useSelectedItemsStore.setState({
+      selectedItems: [],
+    });
+  });
+
   it("renders the Results heading", () => {
     renderResults({});
 
@@ -67,11 +77,12 @@ describe("Results", () => {
     expect(screen.getByText(/no products found/i)).toBeInTheDocument();
   });
 
-  it("renders table headings when products are provided", () => {
+  it("renders list headings when products are provided", () => {
     renderResults({ products });
 
-    expect(screen.getByText(/item name/i)).toBeInTheDocument();
-    expect(screen.getByText(/item description/i)).toBeInTheDocument();
+    expect(screen.getByText(/select/i)).toBeInTheDocument();
+    expect(screen.getByText(/image/i)).toBeInTheDocument();
+    expect(screen.getByText(/product/i)).toBeInTheDocument();
   });
 
   it("renders all product titles and descriptions", () => {
@@ -84,15 +95,37 @@ describe("Results", () => {
     expect(screen.getByText("Android smartphone")).toBeInTheDocument();
   });
 
-  it("calls onProductClick with product id when product is clicked", () => {
+  it("renders product images", () => {
+    renderResults({ products });
+
+    expect(screen.getByAltText("iPhone 15")).toBeInTheDocument();
+    expect(screen.getByAltText("Samsung Galaxy")).toBeInTheDocument();
+  });
+
+  it("calls onProductClick with product id when product card is clicked", async () => {
+    const user = userEvent.setup();
     const onProductClick = vi.fn();
 
     renderResults({ products, onProductClick });
 
-    screen.getByRole("button", { name: /iphone 15 apple smartphone/i }).click();
+    await user.click(screen.getByRole("button", { name: /iphone 15/i }));
 
     expect(onProductClick).toHaveBeenCalledWith(1);
     expect(onProductClick).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not call onProductClick when product checkbox is clicked", async () => {
+    const user = userEvent.setup();
+    const onProductClick = vi.fn();
+
+    renderResults({ products, onProductClick });
+
+    await user.click(
+      screen.getByRole("checkbox", { name: /select iphone 15/i }),
+    );
+
+    expect(onProductClick).not.toHaveBeenCalled();
+    expect(useSelectedItemsStore.getState().selectedItems).toHaveLength(1);
   });
 
   it("prioritizes loading state over error and products", () => {
