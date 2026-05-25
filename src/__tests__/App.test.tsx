@@ -306,4 +306,15 @@ describe("HomePage", () => {
 
     expect(screen.getByText("Apple smartphone details")).toBeInTheDocument();
   });
+  it("adds page 1 to the URL when page search param is missing", async () => {
+    mockedFetchProducts.mockResolvedValueOnce(mockProductsResponse);
+
+    renderHomePage("/");
+
+    await waitFor(() => {
+      expect(mockedFetchProducts).toHaveBeenCalledWith("", 1);
+    });
+
+    expect(await screen.findByText("iPhone 15")).toBeInTheDocument();
+  });
 });
