@@ -1,12 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Outlet, useNavigate, useSearchParams } from "react-router-dom";
 
-import { fetchProducts, LIMIT } from "../api/productsApi";
+import { LIMIT } from "../api/productsApi";
 import Pagination from "../components/Pagination";
 import Results from "../components/Results";
 import Search from "../components/Search";
-import { useLocalStorage } from "../hooks/useLocalStorage";
-import type { Product } from "../types/product";
+import { useProductsStore } from "../store/productsStore";
 
 function getValidPage(value: string | null): number {
   const page = Number(value);
@@ -24,19 +23,19 @@ function HomePage() {
 
   const currentPage = getValidPage(searchParams.get("page"));
 
-  const [products, setProducts] = useState<Product[]>([]);
+  const products = useProductsStore((state) => state.products);
+  const totalProducts = useProductsStore((state) => state.totalProducts);
+  const isLoading = useProductsStore((state) => state.isLoading);
+  const error = useProductsStore((state) => state.error);
 
-  const [savedSearchTerm, setSavedSearchTerm] = useLocalStorage(
-    "searchTerm",
-    "",
+  const searchTerm = useProductsStore((state) => state.searchTerm);
+  const lastSearchedTerm = useProductsStore((state) => state.lastSearchedTerm);
+
+  const setSearchTerm = useProductsStore((state) => state.setSearchTerm);
+  const setLastSearchedTerm = useProductsStore(
+    (state) => state.setLastSearchedTerm,
   );
-
-  const [searchTerm, setSearchTerm] = useState(savedSearchTerm);
-  const [lastSearchedTerm, setLastSearchedTerm] = useState(savedSearchTerm);
-
-  const [totalProducts, setTotalProducts] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+  const loadProducts = useProductsStore((state) => state.loadProducts);
 
   const totalPages = Math.ceil(totalProducts / LIMIT);
 
@@ -46,38 +45,14 @@ function HomePage() {
       return;
     }
 
-    let shouldIgnoreResult = false;
-
-    const loadProductsForPage = async (): Promise<void> => {
-      try {
-        const data = await fetchProducts(lastSearchedTerm, currentPage);
-
-        if (!shouldIgnoreResult) {
-          setProducts(data.products);
-          setTotalProducts(data.total);
-          setError("");
-        }
-      } catch {
-        if (!shouldIgnoreResult) {
-          setProducts([]);
-          setTotalProducts(0);
-          setError(
-            "Unable to load products. Please check your connection or try again later.",
-          );
-        }
-      } finally {
-        if (!shouldIgnoreResult) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    void loadProductsForPage();
-
-    return () => {
-      shouldIgnoreResult = true;
-    };
-  }, [currentPage, lastSearchedTerm, searchParams, setSearchParams]);
+    void loadProducts(lastSearchedTerm, currentPage);
+  }, [
+    currentPage,
+    lastSearchedTerm,
+    loadProducts,
+    searchParams,
+    setSearchParams,
+  ]);
 
   const handleSearchChange = (value: string): void => {
     setSearchTerm(value);
@@ -90,16 +65,11 @@ function HomePage() {
       return;
     }
 
-    setIsLoading(true);
-    setSavedSearchTerm(trimmedSearchTerm);
-    setSearchTerm(trimmedSearchTerm);
     setLastSearchedTerm(trimmedSearchTerm);
-
     navigate("/?page=1");
   };
 
   const handlePageChange = (page: number): void => {
-    setIsLoading(true);
     navigate(`/?page=${page}`);
   };
 

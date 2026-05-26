@@ -2,7 +2,7 @@ import userEvent from "@testing-library/user-event";
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
+import { useProductsStore } from "../store/productsStore";
 import { fetchProductById, fetchProducts } from "../api/productsApi";
 import HomePage from "../pages/HomePage";
 import ProductDetails from "../pages/ProductDetails";
@@ -54,6 +54,19 @@ describe("HomePage", () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
+
+    useProductsStore.setState({
+      products: [],
+      totalProducts: 0,
+      isLoading: true,
+      error: "",
+      searchTerm: "",
+      lastSearchedTerm: "",
+      selectedItems: [],
+      selectedProduct: null,
+      isDetailsLoading: false,
+      detailsError: "",
+    });
   });
 
   it("renders the page and loads products on mount", async () => {
@@ -71,8 +84,11 @@ describe("HomePage", () => {
     expect(screen.getByText("Apple smartphone")).toBeInTheDocument();
   });
 
-  it("uses saved search term from localStorage on mount", async () => {
-    localStorage.setItem("searchTerm", "phone");
+  it("uses saved search term from store on mount", async () => {
+    useProductsStore.setState({
+      searchTerm: "phone",
+      lastSearchedTerm: "phone",
+    });
 
     mockedFetchProducts.mockResolvedValueOnce(mockProductsResponse);
 
@@ -143,7 +159,10 @@ describe("HomePage", () => {
   it("does not search again when search term is the same as last searched term", async () => {
     const user = userEvent.setup();
 
-    localStorage.setItem("searchTerm", "phone");
+    useProductsStore.setState({
+      searchTerm: "phone",
+      lastSearchedTerm: "phone",
+    });
 
     mockedFetchProducts.mockResolvedValueOnce(mockProductsResponse);
 
@@ -163,7 +182,6 @@ describe("HomePage", () => {
     await user.click(screen.getByRole("button", { name: /^search$/i }));
 
     expect(mockedFetchProducts).toHaveBeenCalledTimes(1);
-    expect(localStorage.getItem("searchTerm")).toBe("phone");
   });
 
   it("loads products for the page from the URL", async () => {
