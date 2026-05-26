@@ -3,14 +3,14 @@ import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import ProductCard from "../components/ProductCard";
-import { useSelectedItemsStore } from "../store/selectedItemsStore";
+import { useProductsStore } from "../store/productsStore";
 import { createMockProduct } from "./test-utils/mockProduct";
 
 const product = createMockProduct();
 
 describe("ProductCard", () => {
   beforeEach(() => {
-    useSelectedItemsStore.setState({
+    useProductsStore.setState({
       selectedItems: [],
     });
   });
@@ -96,7 +96,7 @@ describe("ProductCard", () => {
       screen.getByRole("checkbox", { name: /select iphone 15/i }),
     );
 
-    expect(useSelectedItemsStore.getState().selectedItems).toEqual([product]);
+    expect(useProductsStore.getState().selectedItems).toEqual([product]);
     expect(handleClick).not.toHaveBeenCalled();
   });
 
@@ -110,9 +110,9 @@ describe("ProductCard", () => {
     });
 
     await user.click(checkbox);
-    expect(useSelectedItemsStore.getState().selectedItems).toEqual([product]);
+    expect(useProductsStore.getState().selectedItems).toEqual([product]);
 
     await user.click(checkbox);
-    expect(useSelectedItemsStore.getState().selectedItems).toEqual([]);
+    expect(useProductsStore.getState().selectedItems).toEqual([]);
   });
 });

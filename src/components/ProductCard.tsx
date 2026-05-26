@@ -1,4 +1,4 @@
-import { useSelectedItemsStore } from "../store/selectedItemsStore";
+import { useProductsStore } from "../store/productsStore";
 import type { Product } from "../types/product";
 
 interface ProductCardProps {
@@ -7,11 +7,11 @@ interface ProductCardProps {
 }
 
 function ProductCard({ product, onClick }: ProductCardProps) {
-  const toggleSelectedItem = useSelectedItemsStore(
+  const toggleSelectedItem = useProductsStore(
     (state) => state.toggleSelectedItem,
   );
 
-  const isSelected = useSelectedItemsStore((state) =>
+  const isSelected = useProductsStore((state) =>
     state.isItemSelected(product.id),
   );
 

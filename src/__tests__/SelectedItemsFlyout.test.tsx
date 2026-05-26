@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import SelectedItemsFlyout from "../components/SelectedItemsFlyout";
-import { useSelectedItemsStore } from "../store/selectedItemsStore";
+import { useProductsStore } from "../store/productsStore";
 import { downloadProductsCsv } from "../utils/csv";
 import { createMockProduct } from "./test-utils/mockProduct";
 
@@ -26,7 +26,7 @@ const secondProduct = createMockProduct({
 
 describe("SelectedItemsFlyout", () => {
   beforeEach(() => {
-    useSelectedItemsStore.setState({
+    useProductsStore.setState({
       selectedItems: [],
     });
 
@@ -46,7 +46,7 @@ describe("SelectedItemsFlyout", () => {
   });
 
   it("renders selected items count when items are selected", () => {
-    useSelectedItemsStore.setState({
+    useProductsStore.setState({
       selectedItems: [firstProduct, secondProduct],
     });
 
@@ -64,7 +64,7 @@ describe("SelectedItemsFlyout", () => {
   it("clears selected items when Unselect all button is clicked", async () => {
     const user = userEvent.setup();
 
-    useSelectedItemsStore.setState({
+    useProductsStore.setState({
       selectedItems: [firstProduct, secondProduct],
     });
 
@@ -72,14 +72,14 @@ describe("SelectedItemsFlyout", () => {
 
     await user.click(screen.getByRole("button", { name: /unselect all/i }));
 
-    expect(useSelectedItemsStore.getState().selectedItems).toEqual([]);
+    expect(useProductsStore.getState().selectedItems).toEqual([]);
     expect(screen.queryByText(/selected items/i)).not.toBeInTheDocument();
   });
 
   it("downloads selected items when Download button is clicked", async () => {
     const user = userEvent.setup();
 
-    useSelectedItemsStore.setState({
+    useProductsStore.setState({
       selectedItems: [firstProduct, secondProduct],
     });
 

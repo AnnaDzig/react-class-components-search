@@ -1,9 +1,9 @@
-import { useSelectedItemsStore } from "../store/selectedItemsStore";
+import { useProductsStore } from "../store/productsStore";
 import { downloadProductsCsv } from "../utils/csv";
 
 function SelectedItemsFlyout() {
-  const selectedItems = useSelectedItemsStore((state) => state.selectedItems);
-  const clearSelectedItems = useSelectedItemsStore(
+  const selectedItems = useProductsStore((state) => state.selectedItems);
+  const clearSelectedItems = useProductsStore(
     (state) => state.clearSelectedItems,
   );
 

@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import Results from "../components/Results";
-import { useSelectedItemsStore } from "../store/selectedItemsStore";
+import { useProductsStore } from "../store/productsStore";
 import type { Product } from "../types/product";
 import { createMockProduct } from "./test-utils/mockProduct";
 
@@ -44,7 +44,7 @@ function renderResults({
 
 describe("Results", () => {
   beforeEach(() => {
-    useSelectedItemsStore.setState({
+    useProductsStore.setState({
       selectedItems: [],
     });
   });
@@ -125,7 +125,7 @@ describe("Results", () => {
     );
 
     expect(onProductClick).not.toHaveBeenCalled();
-    expect(useSelectedItemsStore.getState().selectedItems).toHaveLength(1);
+    expect(useProductsStore.getState().selectedItems).toHaveLength(1);
   });
 
   it("prioritizes loading state over error and products", () => {
