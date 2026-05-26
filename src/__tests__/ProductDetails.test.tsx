@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Outlet, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
+import { useProductsStore } from "../store/productsStore";
 import { fetchProductById } from "../api/productsApi";
 import ProductDetails from "../pages/ProductDetails";
 import { createMockProduct } from "./test-utils/mockProduct";
@@ -32,6 +32,19 @@ function renderProductDetails(initialRoute = "/products/1") {
 describe("ProductDetails", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    useProductsStore.setState({
+      products: [],
+      totalProducts: 0,
+      isLoading: true,
+      error: "",
+      searchTerm: "",
+      lastSearchedTerm: "",
+      selectedItems: [],
+      selectedProduct: null,
+      isDetailsLoading: false,
+      detailsError: "",
+    });
   });
 
   it("loads and renders product details", async () => {
