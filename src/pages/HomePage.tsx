@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Outlet, useNavigate, useSearchParams } from "react-router-dom";
 
-import { fetchProducts, LIMIT } from "../api/productsApi";
+import { productQueryKeys } from "../api/queryKeys";
+import { LIMIT } from "../api/productsApi";
 import Pagination from "../components/Pagination";
 import Results from "../components/Results";
 import Search from "../components/Search";
 import { useLocalStorage } from "../hooks/useLocalStorage";
-import type { Product } from "../types/product";
+import { useProductsQuery } from "../hooks/useProductsQuery";
 
 function getValidPage(value: string | null): number {
   const page = Number(value);
@@ -20,11 +22,10 @@ function getValidPage(value: string | null): number {
 
 function HomePage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const currentPage = getValidPage(searchParams.get("page"));
-
-  const [products, setProducts] = useState<Product[]>([]);
 
   const [savedSearchTerm, setSavedSearchTerm] = useLocalStorage(
     "searchTerm",
@@ -34,50 +35,20 @@ function HomePage() {
   const [searchTerm, setSearchTerm] = useState(savedSearchTerm);
   const [lastSearchedTerm, setLastSearchedTerm] = useState(savedSearchTerm);
 
-  const [totalProducts, setTotalProducts] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  const totalPages = Math.ceil(totalProducts / LIMIT);
-
   useEffect(() => {
     if (!searchParams.get("page")) {
       setSearchParams({ page: "1" }, { replace: true });
-      return;
     }
+  }, [searchParams, setSearchParams]);
 
-    let shouldIgnoreResult = false;
+  const { data, isLoading, isFetching, isError } = useProductsQuery(
+    lastSearchedTerm,
+    currentPage,
+  );
 
-    const loadProductsForPage = async (): Promise<void> => {
-      try {
-        const data = await fetchProducts(lastSearchedTerm, currentPage);
-
-        if (!shouldIgnoreResult) {
-          setProducts(data.products);
-          setTotalProducts(data.total);
-          setError("");
-        }
-      } catch {
-        if (!shouldIgnoreResult) {
-          setProducts([]);
-          setTotalProducts(0);
-          setError(
-            "Unable to load products. Please check your connection or try again later.",
-          );
-        }
-      } finally {
-        if (!shouldIgnoreResult) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    void loadProductsForPage();
-
-    return () => {
-      shouldIgnoreResult = true;
-    };
-  }, [currentPage, lastSearchedTerm, searchParams, setSearchParams]);
+  const products = data?.products ?? [];
+  const totalProducts = data?.total ?? 0;
+  const totalPages = Math.ceil(totalProducts / LIMIT);
 
   const handleSearchChange = (value: string): void => {
     setSearchTerm(value);
@@ -90,7 +61,6 @@ function HomePage() {
       return;
     }
 
-    setIsLoading(true);
     setSavedSearchTerm(trimmedSearchTerm);
     setSearchTerm(trimmedSearchTerm);
     setLastSearchedTerm(trimmedSearchTerm);
@@ -99,7 +69,6 @@ function HomePage() {
   };
 
   const handlePageChange = (page: number): void => {
-    setIsLoading(true);
     navigate(`/?page=${page}`);
   };
 
@@ -111,20 +80,49 @@ function HomePage() {
     navigate(`/?page=${currentPage}`);
   };
 
+  const handleRefreshProducts = async (): Promise<void> => {
+    await queryClient.invalidateQueries({
+      queryKey: productQueryKeys.list(lastSearchedTerm, currentPage),
+    });
+  };
+
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
       <div>
-        <Search
-          searchTerm={searchTerm}
-          isLoading={isLoading}
-          onChange={handleSearchChange}
-          onSearch={handleSearchSubmit}
-        />
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex-1">
+            <Search
+              searchTerm={searchTerm}
+              isLoading={isFetching}
+              onChange={handleSearchChange}
+              onSearch={handleSearchSubmit}
+            />
+          </div>
+
+          <button
+            className="rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+            disabled={isFetching}
+            type="button"
+            onClick={handleRefreshProducts}
+          >
+            {isFetching ? "Refreshing..." : "Refresh"}
+          </button>
+        </div>
+
+        {isFetching && !isLoading && (
+          <p className="mb-3 text-sm font-medium text-slate-500 dark:text-slate-400">
+            Updating products...
+          </p>
+        )}
 
         <Results
           products={products}
           isLoading={isLoading}
-          error={error}
+          error={
+            isError
+              ? "Unable to load products. Please check your connection or try again later."
+              : ""
+          }
           onProductClick={handleProductClick}
         />
 
