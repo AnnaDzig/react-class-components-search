@@ -1,10 +1,11 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Outlet, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { fetchProductById } from "../api/productsApi";
 import ProductDetails from "../pages/ProductDetails";
 import { createMockProduct } from "./test-utils/mockProduct";
+import { renderWithQueryClient } from "./testQueryClient";
 
 vi.mock("../api/productsApi", () => ({
   fetchProductById: vi.fn(),
@@ -17,7 +18,7 @@ function DetailsLayout() {
 }
 
 function renderProductDetails(initialRoute = "/products/1") {
-  return render(
+  return renderWithQueryClient(
     <MemoryRouter initialEntries={[initialRoute]}>
       <Routes>
         <Route element={<DetailsLayout />}>
@@ -81,10 +82,12 @@ describe("ProductDetails", () => {
     ).toBeInTheDocument();
   });
 
-  it("does not fetch product details when productId is missing", () => {
+  it("does not fetch product details when productId is missing", async () => {
     renderProductDetails("/products");
 
-    expect(mockedFetchProductById).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockedFetchProductById).not.toHaveBeenCalled();
+    });
   });
 
   it("renders fallback text when product has no brand", async () => {

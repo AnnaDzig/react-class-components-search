@@ -1,5 +1,5 @@
 import userEvent from "@testing-library/user-event";
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -8,6 +8,7 @@ import HomePage from "../pages/HomePage";
 import ProductDetails from "../pages/ProductDetails";
 import type { Product, ProductsResponse } from "../types/product";
 import { createMockProduct } from "./test-utils/mockProduct";
+import { renderWithQueryClient } from "./testQueryClient";
 
 vi.mock("../api/productsApi", () => ({
   LIMIT: 10,
@@ -37,7 +38,7 @@ const mockProductDetails: Product = createMockProduct({
 });
 
 function renderHomePage(initialRoute = "/?page=1") {
-  return render(
+  return renderWithQueryClient(
     <MemoryRouter initialEntries={[initialRoute]}>
       <Routes>
         <Route index element={<HomePage />} />
@@ -234,6 +235,7 @@ describe("HomePage", () => {
     expect(await screen.findByText("iPhone 15")).toBeInTheDocument();
     expect(screen.getByText("Apple smartphone")).toBeInTheDocument();
   });
+
   it("uses page 1 when URL page value is invalid", async () => {
     mockedFetchProducts.mockResolvedValueOnce(mockProductsResponse);
 
@@ -245,6 +247,7 @@ describe("HomePage", () => {
 
     expect(await screen.findByText("iPhone 15")).toBeInTheDocument();
   });
+
   it("loads next page when Next pagination button is clicked", async () => {
     const user = userEvent.setup();
 
@@ -283,6 +286,7 @@ describe("HomePage", () => {
       await screen.findByText("Product from next page"),
     ).toBeInTheDocument();
   });
+
   it("opens product details when product card is clicked", async () => {
     const user = userEvent.setup();
 
@@ -306,6 +310,7 @@ describe("HomePage", () => {
 
     expect(screen.getByText("Apple smartphone details")).toBeInTheDocument();
   });
+
   it("adds page 1 to the URL when page search param is missing", async () => {
     mockedFetchProducts.mockResolvedValueOnce(mockProductsResponse);
 
