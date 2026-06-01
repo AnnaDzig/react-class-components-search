@@ -103,7 +103,8 @@ function HomePage() {
             className="rounded-lg border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
             disabled={isFetching}
             type="button"
-            onClick={handleRefreshProducts}>
+            onClick={handleRefreshProducts}
+          >
             {isFetching ? "Refreshing..." : "Refresh"}
           </button>
         </div>
