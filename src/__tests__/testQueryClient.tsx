@@ -7,8 +7,11 @@ export function createTestQueryClient() {
     defaultOptions: {
       queries: {
         retry: false,
-        gcTime: Infinity,
-        staleTime: Infinity,
+        staleTime: 0,
+        gcTime: 0,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+        refetchOnMount: true,
       },
     },
   });
@@ -17,14 +20,18 @@ export function createTestQueryClient() {
 export function renderWithQueryClient(ui: ReactElement) {
   const queryClient = createTestQueryClient();
 
+  queryClient.clear();
+
   function Wrapper({ children }: { children: ReactNode }) {
     return (
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     );
   }
 
+  const renderResult = render(ui, { wrapper: Wrapper });
+
   return {
+    ...renderResult,
     queryClient,
-    ...render(ui, { wrapper: Wrapper }),
   };
 }

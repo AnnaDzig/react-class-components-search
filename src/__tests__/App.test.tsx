@@ -54,7 +54,7 @@ function renderHomePage(initialRoute = "/?page=1") {
 describe("HomePage", () => {
   beforeEach(() => {
     localStorage.clear();
-    vi.clearAllMocks();
+    vi.resetAllMocks();
   });
 
   it("renders the page and loads products on mount", async () => {
@@ -251,32 +251,43 @@ describe("HomePage", () => {
   it("loads next page when Next pagination button is clicked", async () => {
     const user = userEvent.setup();
 
-    mockedFetchProducts.mockResolvedValueOnce({
-      products: [createMockProduct()],
-      total: 30,
-      skip: 0,
-      limit: 10,
-    });
+    mockedFetchProducts
+      .mockResolvedValueOnce({
+        products: [createMockProduct()],
+        total: 30,
+        skip: 0,
+        limit: 10,
+      })
+      .mockResolvedValueOnce({
+        products: [
+          createMockProduct({
+            id: 11,
+            title: "Product from next page",
+            description: "Next page product",
+            thumbnail: "https://example.com/next-page.png",
+          }),
+        ],
+        total: 30,
+        skip: 10,
+        limit: 10,
+      });
 
-    mockedFetchProducts.mockResolvedValueOnce({
-      products: [
-        createMockProduct({
-          id: 11,
-          title: "Product from next page",
-          description: "Next page product",
-          thumbnail: "https://example.com/next-page.png",
-        }),
-      ],
-      total: 30,
-      skip: 10,
-      limit: 10,
-    });
+    expect(mockedFetchProducts).not.toHaveBeenCalled();
 
-    renderHomePage("/?page=1");
+    renderHomePage("/?page=1&test=pagination");
+
+    await waitFor(() => {
+      expect(mockedFetchProducts).toHaveBeenCalledWith("", 1);
+    });
 
     expect(await screen.findByText("iPhone 15")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/page/i)).toBeInTheDocument();
+    });
 
-    await user.click(screen.getByRole("button", { name: /next/i }));
+    const nextButton = screen.getByText("Next");
+
+    await user.click(nextButton);
 
     await waitFor(() => {
       expect(mockedFetchProducts).toHaveBeenCalledWith("", 2);
@@ -285,6 +296,8 @@ describe("HomePage", () => {
     expect(
       await screen.findByText("Product from next page"),
     ).toBeInTheDocument();
+
+    expect(await screen.findByText(/page 2 of 3/i)).toBeInTheDocument();
   });
 
   it("opens product details when product card is clicked", async () => {
@@ -312,7 +325,9 @@ describe("HomePage", () => {
   });
 
   it("adds page 1 to the URL when page search param is missing", async () => {
-    mockedFetchProducts.mockResolvedValueOnce(mockProductsResponse);
+    mockedFetchProducts
+      .mockResolvedValueOnce(mockProductsResponse)
+      .mockResolvedValueOnce(mockProductsResponse);
 
     renderHomePage("/");
 
