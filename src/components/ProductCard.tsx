@@ -30,7 +30,8 @@ function ProductCard({ product, onClick }: ProductCardProps) {
           event.preventDefault();
           onClick();
         }
-      }}>
+      }}
+    >
       <div onClick={(event) => event.stopPropagation()}>
         <input
           aria-label={`Select ${product.title}`}

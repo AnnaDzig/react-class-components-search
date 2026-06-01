@@ -7,11 +7,10 @@ export function createTestQueryClient() {
     defaultOptions: {
       queries: {
         retry: false,
-        staleTime: 0,
-        gcTime: 0,
+        staleTime: Infinity,
+        gcTime: Infinity,
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
-        refetchOnMount: true,
       },
     },
   });

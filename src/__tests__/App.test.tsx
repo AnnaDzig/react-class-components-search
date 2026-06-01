@@ -337,4 +337,89 @@ describe("HomePage", () => {
 
     expect(await screen.findByText("iPhone 15")).toBeInTheDocument();
   });
+  it("reuses cached product list data when returning to a previously loaded page", async () => {
+    const user = userEvent.setup();
+
+    mockedFetchProducts.mockImplementation((_searchTerm, page) => {
+      if (page === 2) {
+        return Promise.resolve({
+          products: [
+            createMockProduct({
+              id: 11,
+              title: "Product from page 2",
+              description: "Second page product",
+              thumbnail: "https://example.com/page-2.png",
+            }),
+          ],
+          total: 30,
+          skip: 10,
+          limit: 10,
+        });
+      }
+
+      return Promise.resolve({
+        products: [createMockProduct()],
+        total: 30,
+        skip: 0,
+        limit: 10,
+      });
+    });
+
+    renderHomePage("/?page=1");
+
+    expect(await screen.findByText("iPhone 15")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /next/i }));
+
+    expect(await screen.findByText("Product from page 2")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /previous/i }));
+
+    expect(await screen.findByText("iPhone 15")).toBeInTheDocument();
+
+    expect(mockedFetchProducts).toHaveBeenCalledWith("", 1);
+    expect(mockedFetchProducts).toHaveBeenCalledWith("", 2);
+
+    expect(
+      mockedFetchProducts.mock.calls.filter(
+        ([searchTerm, page]) => searchTerm === "" && page === 1,
+      ),
+    ).toHaveLength(1);
+  });
+  it("refetches the current product list when Refresh is clicked", async () => {
+    const user = userEvent.setup();
+
+    mockedFetchProducts
+      .mockResolvedValueOnce({
+        products: [createMockProduct()],
+        total: 1,
+        skip: 0,
+        limit: 10,
+      })
+      .mockResolvedValueOnce({
+        products: [
+          createMockProduct({
+            id: 2,
+            title: "Updated product",
+            description: "Updated product description",
+            thumbnail: "https://example.com/updated.png",
+          }),
+        ],
+        total: 1,
+        skip: 0,
+        limit: 10,
+      });
+
+    renderHomePage("/?page=1");
+
+    expect(await screen.findByText("iPhone 15")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /refresh/i }));
+
+    await waitFor(() => {
+      expect(mockedFetchProducts).toHaveBeenCalledTimes(2);
+    });
+
+    expect(await screen.findByText("Updated product")).toBeInTheDocument();
+  });
 });

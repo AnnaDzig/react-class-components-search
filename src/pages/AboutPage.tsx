@@ -26,14 +26,16 @@ function AboutPage() {
           className="mt-5 inline-block font-semibold text-slate-900 underline transition hover:text-slate-600 dark:text-slate-100 dark:hover:text-slate-300"
           href="https://rs.school/courses/reactjs"
           target="_blank"
-          rel="noreferrer">
+          rel="noreferrer"
+        >
           RS School React Course
         </a>
 
         <div className="mt-6">
           <Link
             className="inline-flex rounded-lg bg-slate-900 px-5 py-2 font-medium text-white transition hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
-            to="/?page=1">
+            to="/?page=1"
+          >
             Back to homepage
           </Link>
         </div>

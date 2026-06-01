@@ -22,14 +22,16 @@ function SelectedItemsFlyout() {
           <button
             className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
             type="button"
-            onClick={clearSelectedItems}>
+            onClick={clearSelectedItems}
+          >
             Unselect all
           </button>
 
           <button
             className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
             type="button"
-            onClick={() => downloadProductsCsv(selectedItems)}>
+            onClick={() => downloadProductsCsv(selectedItems)}
+          >
             Download
           </button>
         </div>

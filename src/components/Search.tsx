@@ -34,7 +34,8 @@ function Search({ searchTerm, isLoading, onChange, onSearch }: SearchProps) {
           className="rounded-lg bg-slate-900 px-6 py-2 font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-400 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 dark:disabled:bg-slate-600 dark:disabled:text-slate-300"
           type="button"
           onClick={onSearch}
-          disabled={isLoading}>
+          disabled={isLoading}
+        >
           {isLoading ? "Searching..." : "Search"}
         </button>
       </div>

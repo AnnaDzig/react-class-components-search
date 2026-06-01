@@ -16,7 +16,8 @@ function App() {
         <nav className="mb-6 flex justify-center">
           <Link
             className="rounded-lg bg-white px-5 py-2 font-medium text-slate-700 shadow transition hover:text-slate-900 dark:bg-slate-900 dark:text-slate-200 dark:hover:text-white"
-            to="/about">
+            to="/about"
+          >
             About
           </Link>
         </nav>
