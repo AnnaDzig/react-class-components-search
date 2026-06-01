@@ -1,6 +1,7 @@
 import { screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Outlet, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import userEvent from "@testing-library/user-event";
 
 import { fetchProductById } from "../api/productsApi";
 import ProductDetails from "../pages/ProductDetails";
@@ -100,5 +101,38 @@ describe("ProductDetails", () => {
     renderProductDetails();
 
     expect(await screen.findByText("No brand")).toBeInTheDocument();
+  });
+  it("refetches product details when Refresh is clicked", async () => {
+    const user = userEvent.setup();
+
+    mockedFetchProductById
+      .mockResolvedValueOnce(
+        createMockProduct({
+          title: "Original product",
+          description: "Original product description",
+        }),
+      )
+      .mockResolvedValueOnce(
+        createMockProduct({
+          title: "Updated product",
+          description: "Updated product description",
+        }),
+      );
+
+    renderProductDetails();
+
+    expect(await screen.findByText("Original product")).toBeInTheDocument();
+    expect(
+      screen.getByText("Original product description"),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /refresh/i }));
+
+    await waitFor(() => {
+      expect(mockedFetchProductById).toHaveBeenCalledTimes(2);
+    });
+
+    expect(await screen.findByText("Updated product")).toBeInTheDocument();
+    expect(screen.getByText("Updated product description")).toBeInTheDocument();
   });
 });
