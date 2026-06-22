@@ -6,7 +6,7 @@ export const LIMIT = 10;
 
 function delay(milliseconds: number): Promise<void> {
   return new Promise((resolve) => {
-    window.setTimeout(resolve, milliseconds);
+    setTimeout(resolve, milliseconds);
   });
 }
 
@@ -31,6 +31,7 @@ export async function fetchProducts(
 
   return response.json() as Promise<ProductsResponse>;
 }
+
 export async function fetchProductById(id: string): Promise<Product> {
   await delay(300);
 

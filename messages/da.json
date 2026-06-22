@@ -1,0 +1,58 @@
+{
+  "navigation": {
+    "about": "Om"
+  },
+  "language": {
+    "label": "Sprog",
+    "en": "Engelsk",
+    "da": "Dansk",
+    "uk": "Ukrainsk"
+  },
+  "header": {
+    "eyebrow": "Klassekomponenter",
+    "title": "Produktsøgningsapp",
+    "description": "Søg efter produkter, gem din seneste søgning, og håndter indlæsning og fejl med klassebaserede React-komponenter."
+  },
+  "search": {
+    "title": "Søg",
+    "placeholder": "Søg efter produkter...",
+    "button": "Søg"
+  },
+  "results": {
+    "title": "Resultater",
+    "empty": "Ingen produkter fundet.",
+    "error": "Produkterne kunne ikke indlæses. Tjek forbindelsen, eller prøv igen senere.",
+    "select": "Vælg",
+    "image": "Billede",
+    "product": "Produkt"
+  },
+  "pagination": {
+    "previous": "Forrige",
+    "next": "Næste",
+    "page": "Side {currentPage} af {totalPages}"
+  },
+  "details": {
+    "panel": "Detaljepanel",
+    "title": "Produktdetaljer",
+    "empty": "Vælg et produkt for at se detaljer her.",
+    "close": "Luk",
+    "rating": "Bedømmelse",
+    "stock": "Lager",
+    "brand": "Mærke",
+    "noBrand": "Intet mærke",
+    "availability": "Tilgængelighed",
+    "productId": "Produkt-ID",
+    "sku": "SKU",
+    "warranty": "Garanti",
+    "shipping": "Forsendelse",
+    "returnPolicy": "Returpolitik",
+    "tags": "Tags",
+    "reviews": "Anmeldelser",
+    "error": "Produktdetaljerne kunne ikke indlæses. Prøv igen senere."
+  },
+  "selectedItems": {
+    "count": "Valgte produkter: {count}",
+    "unselectAll": "Fravælg alle",
+    "download": "Download"
+  }
+}

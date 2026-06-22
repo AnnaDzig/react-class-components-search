@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 
 function ErrorButton() {
@@ -11,8 +12,7 @@ function ErrorButton() {
     <button
       className="mt-6 rounded-lg bg-red-600 px-5 py-2 font-medium text-white hover:bg-red-700"
       type="button"
-      onClick={() => setShouldThrowError(true)}
-    >
+      onClick={() => setShouldThrowError(true)}>
       Test Error Boundary
     </button>
   );

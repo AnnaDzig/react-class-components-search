@@ -1,6 +1,8 @@
+"use client";
+
 import { create } from "zustand";
 
-import type { Product } from "../types/product";
+import type { Product } from "@/types/product";
 
 interface SelectedItemsState {
   selectedItems: Product[];
