@@ -1,90 +1,84 @@
-import { useSelectedItemsStore } from "../store/selectedItemsStore";
-import type { Product } from "../types/product";
+import Image from "next/image";
+
+import { Link } from "@/i18n/navigation";
+import type { Locale } from "@/i18n/routing";
+import type { Product } from "@/types/product";
+
+import ProductSelectCheckbox from "./ProductSelectCheckbox";
 
 interface ProductCardProps {
   product: Product;
-  onClick: () => void;
+  currentPage: number;
+  searchTerm: string;
+  locale: Locale;
 }
 
-function ProductCard({ product, onClick }: ProductCardProps) {
-  const toggleSelectedItem = useSelectedItemsStore(
-    (state) => state.toggleSelectedItem,
-  );
+function getProductQuery(
+  productId: number,
+  currentPage: number,
+  searchTerm: string,
+) {
+  if (!searchTerm) {
+    return {
+      page: currentPage,
+      productId,
+    };
+  }
 
-  const isSelected = useSelectedItemsStore((state) =>
-    state.isItemSelected(product.id),
-  );
+  return {
+    page: currentPage,
+    query: searchTerm,
+    productId,
+  };
+}
 
-  const handleCheckboxChange = () => {
-    toggleSelectedItem(product);
+function ProductCard({
+  product,
+  currentPage,
+  searchTerm,
+  locale,
+}: ProductCardProps) {
+  const productHref = {
+    pathname: "/",
+    query: getProductQuery(product.id, currentPage, searchTerm),
   };
 
   return (
-    <article
-      className="grid w-full cursor-pointer grid-cols-[auto_96px_1fr] gap-4 rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-500"
-      role="button"
-      tabIndex={0}
-      onClick={onClick}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onClick();
-        }
-      }}
-    >
-      <div onClick={(event) => event.stopPropagation()}>
-        <input
-          aria-label={`Select ${product.title}`}
-          checked={isSelected}
-          className="mt-1 h-4 w-4 cursor-pointer accent-slate-900 dark:accent-slate-100"
-          type="checkbox"
-          onChange={handleCheckboxChange}
-        />
-      </div>
+    <article className="grid grid-cols-[auto_96px_1fr] gap-4 px-4 py-4 transition hover:bg-slate-50 dark:hover:bg-slate-800">
+      <ProductSelectCheckbox product={product} />
 
-      <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-800">
-        <img
+      <Link
+        href={productHref}
+        locale={locale}
+        className="relative h-24 w-24 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-800">
+        <Image
           alt={product.title}
-          className="h-full w-full object-contain p-2"
+          className="object-contain p-2"
           src={product.thumbnail}
+          fill
+          sizes="96px"
         />
-      </div>
+      </Link>
 
-      <div className="min-w-0">
-        <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
-              {product.category}
-            </p>
+      <Link href={productHref} locale={locale} className="block">
+        <h3 className="font-semibold text-slate-900 transition hover:text-slate-600 dark:text-slate-100 dark:hover:text-slate-300">
+          {product.title}
+        </h3>
 
-            <h3 className="line-clamp-1 font-semibold text-slate-900 dark:text-slate-100">
-              {product.title}
-            </h3>
-          </div>
-
-          <p className="rounded-full bg-slate-900 px-3 py-1 text-sm font-semibold text-white dark:bg-slate-100 dark:text-slate-900">
-            ${product.price}
-          </p>
-        </div>
-
-        <p className="line-clamp-2 leading-6 text-slate-600 dark:text-slate-300">
+        <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">
           {product.description}
         </p>
 
-        <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-600 dark:text-slate-300">
-          <span className="rounded-full bg-slate-100 px-2 py-1 dark:bg-slate-800">
-            Rating: {product.rating}
+        <div className="mt-3 flex flex-wrap gap-2 text-sm">
+          <span className="rounded-full bg-slate-100 px-3 py-1 font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+            ${product.price}
           </span>
 
-          <span className="rounded-full bg-slate-100 px-2 py-1 dark:bg-slate-800">
-            Stock: {product.stock}
-          </span>
-
-          <span className="rounded-full bg-slate-100 px-2 py-1 dark:bg-slate-800">
-            {product.availabilityStatus}
+          <span className="rounded-full bg-slate-100 px-3 py-1 font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+            {product.category}
           </span>
         </div>
-      </div>
+      </Link>
     </article>
   );
 }

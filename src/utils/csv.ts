@@ -1,4 +1,4 @@
-import type { Product } from "../types/product";
+import type { Product } from "@/types/product";
 
 const escapeCsvValue = (value: string | number) => {
   const stringValue = String(value);
@@ -36,21 +36,4 @@ export const createProductsCsv = (products: Product[]) => {
   return [headers, ...rows]
     .map((row) => row.map(escapeCsvValue).join(","))
     .join("\n");
-};
-
-export const downloadProductsCsv = (products: Product[]) => {
-  const csvContent = createProductsCsv(products);
-
-  const blob = new Blob([csvContent], {
-    type: "text/csv;charset=utf-8;",
-  });
-
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-
-  link.href = url;
-  link.download = `${products.length}_items.csv`;
-  link.click();
-
-  URL.revokeObjectURL(url);
 };

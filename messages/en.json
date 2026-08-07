@@ -1,0 +1,58 @@
+{
+  "navigation": {
+    "about": "About"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "da": "Danish",
+    "uk": "Ukrainian"
+  },
+  "header": {
+    "eyebrow": "Class Components",
+    "title": "Product Search App",
+    "description": "Search products, keep your last search, and handle loading and errors with class-based React components."
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search products...",
+    "button": "Search"
+  },
+  "results": {
+    "title": "Results",
+    "empty": "No products found.",
+    "error": "Unable to load products. Please check your connection or try again later.",
+    "select": "Select",
+    "image": "Image",
+    "product": "Product"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {currentPage} of {totalPages}"
+  },
+  "details": {
+    "panel": "Details panel",
+    "title": "Product Details",
+    "empty": "Select a product to see details here.",
+    "close": "Close",
+    "rating": "Rating",
+    "stock": "Stock",
+    "brand": "Brand",
+    "noBrand": "No brand",
+    "availability": "Availability",
+    "productId": "Product ID",
+    "sku": "SKU",
+    "warranty": "Warranty",
+    "shipping": "Shipping",
+    "returnPolicy": "Return policy",
+    "tags": "Tags",
+    "reviews": "Reviews",
+    "error": "Unable to load product details. Please try again later."
+  },
+  "selectedItems": {
+    "count": "Selected items: {count}",
+    "unselectAll": "Unselect all",
+    "download": "Download"
+  }
+}
